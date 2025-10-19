@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import { toast } from "sonner";
 import {
   Header,
   Footer,
@@ -26,7 +27,9 @@ export default function Home() {
 
   const handleFileSelect = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
-      alert("Please select an image file");
+      toast.error("Invalid file type", {
+        description: "Please select an image file (PNG, JPEG, WebP, etc.)",
+      });
       return;
     }
 
@@ -36,6 +39,9 @@ export default function Home() {
     setPreviewUrl(url);
     setConvertedUrl("");
     setConvertedSize(0);
+    toast.success("Image uploaded", {
+      description: `${file.name} ready for conversion`,
+    });
   }, []);
 
   const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
@@ -62,6 +68,10 @@ export default function Home() {
     if (!selectedFile) return;
 
     setIsConverting(true);
+    const loadingToast = toast.loading("Converting image...", {
+      description: `Converting to ${settings.format.toUpperCase()}`,
+    });
+
     try {
       // Build query parameters
       const params = new URLSearchParams({
@@ -92,13 +102,20 @@ export default function Home() {
       const url = URL.createObjectURL(blob);
       setConvertedUrl(url);
       setConvertedSize(blob.size);
+
+      toast.success("Conversion complete!", {
+        description: `Your image has been converted to ${settings.format.toUpperCase()}`,
+        id: loadingToast,
+      });
     } catch (error) {
       console.error("Conversion error:", error);
-      alert(
-        `Failed to convert image: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }. Make sure the imaginary server is running on port 9000.`
-      );
+      toast.error("Conversion failed", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Make sure the imaginary server is running",
+        id: loadingToast,
+      });
     } finally {
       setIsConverting(false);
     }
@@ -113,6 +130,10 @@ export default function Home() {
     document.body.appendChild(a);
     a.click();
     a.remove();
+
+    toast.success("Download started", {
+      description: `Saving as converted.${settings.format}`,
+    });
   }, [convertedUrl, settings.format]);
 
   const handleSettingsChange = useCallback(
