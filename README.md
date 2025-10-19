@@ -35,7 +35,7 @@ So we built one.
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/edgiumtech/ImageMate
 cd imaginary
 
 # Start the services
