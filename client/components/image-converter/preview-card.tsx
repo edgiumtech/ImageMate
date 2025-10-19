@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Image as ImageIcon, FileCheck } from "lucide-react";
+import Image from "next/image";
 
 interface PreviewCardProps {
   previewUrl: string;
@@ -30,6 +31,39 @@ export const PreviewCard = memo(function PreviewCard({
   formatBytes,
   onDownload,
 }: PreviewCardProps) {
+  const renderConvertedPreview = () => {
+    if (!convertedUrl) {
+      return (
+        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+          <ImageIcon className="w-12 h-12" />
+        </div>
+      );
+    }
+
+    if (outputFormat === "tiff") {
+      return (
+        <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-3 p-6">
+          <FileCheck className="w-16 h-16" />
+          <div className="text-center">
+            <p className="text-sm font-medium">TIFF Ready</p>
+            <p className="text-xs mt-1">Preview not available in browser</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <Image
+        src={convertedUrl}
+        alt="Converted image preview"
+        fill
+        className="object-contain"
+        sizes="100vw"
+        priority
+      />
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -38,15 +72,17 @@ export const PreviewCard = memo(function PreviewCard({
       </CardHeader>
       <CardContent>
         <div className="grid md:grid-cols-2 gap-6">
-          {/* Original */}
           <div>
             <p className="text-sm font-medium mb-2">Original</p>
             <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
               {previewUrl && (
-                <img
+                <Image
                   src={previewUrl}
                   alt="Original"
-                  className="w-full h-full object-contain"
+                  fill
+                  className="object-contain"
+                  sizes="100vw"
+                  priority
                 />
               )}
             </div>
@@ -55,33 +91,10 @@ export const PreviewCard = memo(function PreviewCard({
             </p>
           </div>
 
-          {/* Converted */}
           <div>
             <p className="text-sm font-medium mb-2">Converted</p>
             <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-              {convertedUrl ? (
-                outputFormat === "tiff" ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-3 p-6">
-                    <FileCheck className="w-16 h-16" />
-                    <div className="text-center">
-                      <p className="text-sm font-medium">TIFF Ready</p>
-                      <p className="text-xs mt-1">
-                        Preview not available in browser
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <img
-                    src={convertedUrl}
-                    alt="Converted image preview"
-                    className="w-full h-full object-contain"
-                  />
-                )
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  <ImageIcon className="w-12 h-12" />
-                </div>
-              )}
+              {renderConvertedPreview()}
             </div>
             {convertedSize > 0 && (
               <div className="mt-2 space-y-1">

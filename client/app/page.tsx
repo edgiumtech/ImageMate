@@ -20,7 +20,7 @@ export default function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const [settings, setSettings] = useState<ConversionSettings>({
     format: "webp",
-    quality: 90,
+    quality: 100,
   });
   const [originalSize, setOriginalSize] = useState<number>(0);
   const [convertedSize, setConvertedSize] = useState<number>(0);
