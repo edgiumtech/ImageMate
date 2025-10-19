@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Image as ImageIcon } from "lucide-react";
+import { Download, Image as ImageIcon, FileCheck } from "lucide-react";
 
 interface PreviewCardProps {
   previewUrl: string;
@@ -60,11 +60,23 @@ export const PreviewCard = memo(function PreviewCard({
             <p className="text-sm font-medium mb-2">Converted</p>
             <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
               {convertedUrl ? (
-                <img
-                  src={convertedUrl}
-                  alt="Converted"
-                  className="w-full h-full object-contain"
-                />
+                outputFormat === "tiff" ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-3 p-6">
+                    <FileCheck className="w-16 h-16" />
+                    <div className="text-center">
+                      <p className="text-sm font-medium">TIFF Ready</p>
+                      <p className="text-xs mt-1">
+                        Preview not available in browser
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={convertedUrl}
+                    alt="Converted image preview"
+                    className="w-full h-full object-contain"
+                  />
+                )
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                   <ImageIcon className="w-12 h-12" />

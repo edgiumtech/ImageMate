@@ -14,9 +14,9 @@ interface UploadCardProps {
   isDragging: boolean;
   originalSize: number;
   onFileSelect: (file: File) => void;
-  onDragOver: (e: DragEvent<HTMLDivElement>) => void;
-  onDragLeave: (e: DragEvent<HTMLDivElement>) => void;
-  onDrop: (e: DragEvent<HTMLDivElement>) => void;
+  onDragOver: (e: DragEvent<HTMLButtonElement>) => void;
+  onDragLeave: (e: DragEvent<HTMLButtonElement>) => void;
+  onDrop: (e: DragEvent<HTMLButtonElement>) => void;
   formatBytes: (bytes: number) => string;
 }
 
@@ -39,7 +39,7 @@ export const UploadCard = memo(function UploadCard({
     document.getElementById("fileInput")?.click();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       handleClick();
@@ -55,15 +55,14 @@ export const UploadCard = memo(function UploadCard({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div
+        <button
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
           onDrop={onDrop}
           onKeyDown={handleKeyDown}
-          role="button"
           tabIndex={0}
           className={`
-            border-2 border-dashed rounded-lg p-12 text-center transition-all cursor-pointer
+            border-2 border-dashed rounded-lg p-12 text-center transition-all cursor-pointer w-full
             ${
               isDragging
                 ? "border-primary bg-primary/5 scale-[1.02]"
@@ -84,9 +83,9 @@ export const UploadCard = memo(function UploadCard({
             {selectedFile ? selectedFile.name : "Click or drag image here"}
           </p>
           <p className="text-xs text-muted-foreground">
-            Supports PNG, JPEG, WebP, TIFF, and more
+            Supports PNG, JPEG, WebP and TIFF
           </p>
-        </div>
+        </button>
 
         {selectedFile && (
           <div className="mt-4 p-4 bg-muted/50 rounded-lg">

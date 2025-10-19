@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ImageMate - Fast Image Conversion",
   description:
-    "Private, fast image conversion powered by libvips. Convert PNG, JPEG, WebP, AVIF and more with ease.",
+    "Private, fast image conversion powered by libvips. Convert PNG, JPEG, WebP and TIFF with ease.",
 };
 
 export default function RootLayout({

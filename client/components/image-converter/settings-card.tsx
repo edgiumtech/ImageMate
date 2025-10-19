@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -19,6 +19,57 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight } from "lucide-react";
 import type { ConversionSettings } from "./types";
 
+const SettingCardHeader = memo(function SettingCardHeader() {
+  return (
+    <CardHeader>
+      <CardTitle>Conversion Settings</CardTitle>
+      <CardDescription>Choose format, quality, and dimensions</CardDescription>
+    </CardHeader>
+  );
+});
+
+SettingCardHeader.displayName = "SettingCardHeader";
+
+const MemoizedTabsList = memo(function MemoizedTabsList() {
+  return (
+    <TabsList className="grid w-full grid-cols-2">
+      <TabsTrigger value="format">Format</TabsTrigger>
+      <TabsTrigger value="resize">Resize</TabsTrigger>
+    </TabsList>
+  );
+});
+
+MemoizedTabsList.displayName = "MemoizedTabsList";
+
+const OutputFormatSelect = memo(function OutputFormatSelect({
+  settings,
+  onFormatChange,
+}: {
+  settings: ConversionSettings;
+  onFormatChange: (format: string) => void;
+}) {
+  return (
+    <div>
+      <label htmlFor="format-select" className="text-sm font-medium mb-2 block">
+        Output Format
+      </label>
+      <Select value={settings.format} onValueChange={onFormatChange}>
+        <SelectTrigger id="format-select">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="webp">WebP</SelectItem>
+          <SelectItem value="jpeg">JPEG</SelectItem>
+          <SelectItem value="png">PNG (Lossless)</SelectItem>
+          <SelectItem value="tiff">TIFF</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+});
+
+const ARROW_RIGHT_ICON = <ArrowRight className="ml-2" />;
+
 interface SettingsCardProps {
   settings: ConversionSettings;
   isConverting: boolean;
@@ -34,67 +85,51 @@ export const SettingsCard = memo(function SettingsCard({
   onSettingsChange,
   onConvert,
 }: SettingsCardProps) {
-  const handleFormatChange = (format: string) => {
-    onSettingsChange({ ...settings, format });
-  };
+  const handleFormatChange = useCallback(
+    (format: string) => {
+      onSettingsChange({ ...settings, format });
+    },
+    [onSettingsChange, settings]
+  );
 
-  const handleQualityChange = ([quality]: number[]) => {
-    onSettingsChange({ ...settings, quality });
-  };
+  const handleQualityChange = useCallback(
+    ([quality]: number[]) => {
+      onSettingsChange({ ...settings, quality });
+    },
+    [onSettingsChange, settings]
+  );
 
-  const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSettingsChange({
-      ...settings,
-      width: e.target.value ? Number.parseInt(e.target.value) : undefined,
-    });
-  };
+  const handleWidthChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onSettingsChange({
+        ...settings,
+        width: e.target.value ? Number.parseInt(e.target.value) : undefined,
+      });
+    },
+    [onSettingsChange, settings]
+  );
 
-  const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSettingsChange({
-      ...settings,
-      height: e.target.value ? Number.parseInt(e.target.value) : undefined,
-    });
-  };
+  const handleHeightChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onSettingsChange({
+        ...settings,
+        height: e.target.value ? Number.parseInt(e.target.value) : undefined,
+      });
+    },
+    [onSettingsChange, settings]
+  );
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Conversion Settings</CardTitle>
-        <CardDescription>
-          Choose format, quality, and dimensions
-        </CardDescription>
-      </CardHeader>
+      <SettingCardHeader />
       <CardContent className="space-y-6">
         <Tabs defaultValue="format" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="format">Format</TabsTrigger>
-            <TabsTrigger value="resize">Resize</TabsTrigger>
-          </TabsList>
-
+          <MemoizedTabsList />
           <TabsContent value="format" className="space-y-4 mt-4">
-            <div>
-              <label
-                htmlFor="format-select"
-                className="text-sm font-medium mb-2 block"
-              >
-                Output Format
-              </label>
-              <Select
-                value={settings.format}
-                onValueChange={handleFormatChange}
-              >
-                <SelectTrigger id="format-select">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="webp">WebP</SelectItem>
-                  <SelectItem value="jpeg">JPEG</SelectItem>
-                  <SelectItem value="png">PNG (Lossless)</SelectItem>
-                  <SelectItem value="avif">AVIF</SelectItem>
-                  <SelectItem value="tiff">TIFF</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <OutputFormatSelect
+              settings={settings}
+              onFormatChange={handleFormatChange}
+            />
 
             {settings.format !== "png" && settings.format !== "tiff" && (
               <div>
@@ -170,7 +205,7 @@ export const SettingsCard = memo(function SettingsCard({
           size="lg"
         >
           {isConverting ? "Converting..." : "Convert Image"}
-          <ArrowRight className="ml-2" />
+          {ARROW_RIGHT_ICON}
         </Button>
       </CardContent>
     </Card>

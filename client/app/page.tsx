@@ -44,18 +44,18 @@ export default function Home() {
     });
   }, []);
 
-  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = useCallback((e: DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsDragging(true);
   }, []);
 
-  const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = useCallback((e: DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsDragging(false);
   }, []);
 
   const handleDrop = useCallback(
-    (e: DragEvent<HTMLDivElement>) => {
+    (e: DragEvent<HTMLButtonElement>) => {
       e.preventDefault();
       setIsDragging(false);
       const file = e.dataTransfer.files[0];
