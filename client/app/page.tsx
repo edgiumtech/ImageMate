@@ -16,6 +16,7 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [convertedUrl, setConvertedUrl] = useState<string>("");
+  const [convertedFormat, setConvertedFormat] = useState<string>("");
   const [isConverting, setIsConverting] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [settings, setSettings] = useState<ConversionSettings>({
@@ -38,6 +39,7 @@ export default function Home() {
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     setConvertedUrl("");
+    setConvertedFormat("");
     setConvertedSize(0);
     toast.success("Image uploaded", {
       description: `${file.name} ready for conversion`,
@@ -101,6 +103,7 @@ export default function Home() {
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       setConvertedUrl(url);
+      setConvertedFormat(settings.format);
       setConvertedSize(blob.size);
 
       toast.success("Conversion complete!", {
@@ -122,19 +125,19 @@ export default function Home() {
   }, [selectedFile, settings]);
 
   const downloadImage = useCallback(() => {
-    if (!convertedUrl) return;
+    if (!convertedUrl || !convertedFormat) return;
 
     const a = document.createElement("a");
     a.href = convertedUrl;
-    a.download = `converted.${settings.format}`;
+    a.download = `converted.${convertedFormat}`;
     document.body.appendChild(a);
     a.click();
     a.remove();
 
     toast.success("Download started", {
-      description: `Saving as converted.${settings.format}`,
+      description: `Saving as converted.${convertedFormat}`,
     });
-  }, [convertedUrl, settings.format]);
+  }, [convertedUrl, convertedFormat]);
 
   const handleSettingsChange = useCallback(
     (newSettings: ConversionSettings) => {
@@ -197,7 +200,7 @@ export default function Home() {
             originalSize={originalSize}
             convertedSize={convertedSize}
             savingsPercent={savingsPercent}
-            outputFormat={settings.format}
+            outputFormat={convertedFormat}
             formatBytes={formatBytes}
             onDownload={downloadImage}
           />
