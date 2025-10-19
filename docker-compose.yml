@@ -1,0 +1,65 @@
+services:
+  imaginary:
+    image: h2non/imaginary:latest
+    container_name: imaginary
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./images:/mnt/images
+    environment:
+      # Memory limit for image processing (in MB)
+      - MALLOC_ARENA_MAX=2
+      # Max concurrent operations
+      - PORT=9000
+    command: >
+      -concurrency 10
+      -enable-url-source
+      -mount /mnt/images
+      -http-cache-ttl 31556926
+      -cpus 2
+      -cors
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: imaginary-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:9000
+    depends_on:
+      - imaginary
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+# Example curl commands for image conversion:
+#
+# Convert PNG to WebP:
+# curl -o output.webp "http://localhost:9000/convert?url=http://example.com/image.png&type=webp&quality=90"
+#
+# Or using a local file from mounted volume:
+# curl -o output.webp "http://localhost:9000/convert?file=/mnt/images/input.png&type=webp&quality=90"
+#
+# Resize and convert to WebP:
+# curl -o output.webp "http://localhost:9000/pipeline?operations=[{%22operation%22:%22resize%22,%22params%22:{%22width%22:800,%22height%22:600}},{%22operation%22:%22convert%22,%22params%22:{%22type%22:%22webp%22}}]&url=http://example.com/image.png"
+#
+# Other supported operations:
+# - /resize - Resize images
+# - /crop - Crop images
+# - /rotate - Rotate images
+# - /thumbnail - Generate thumbnails
+# - /fit - Fit images to dimensions
+
