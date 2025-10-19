@@ -13,18 +13,27 @@ import {
 import type { DragEvent } from "react";
 
 export default function Home() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [convertedUrl, setConvertedUrl] = useState<string>("");
-  const [convertedFormat, setConvertedFormat] = useState<string>("");
-  const [isConverting, setIsConverting] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
+  // Upload state
+  const [upload, setUpload] = useState({
+    file: null as File | null,
+    previewUrl: "",
+    size: 0,
+    isDragging: false,
+  });
+
+  // Conversion state
+  const [conversion, setConversion] = useState({
+    url: "",
+    format: "",
+    size: 0,
+    isConverting: false,
+  });
+
+  // Settings
   const [settings, setSettings] = useState<ConversionSettings>({
     format: "webp",
     quality: 100,
   });
-  const [originalSize, setOriginalSize] = useState<number>(0);
-  const [convertedSize, setConvertedSize] = useState<number>(0);
 
   const handleFileSelect = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -34,13 +43,20 @@ export default function Home() {
       return;
     }
 
-    setSelectedFile(file);
-    setOriginalSize(file.size);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    setConvertedUrl("");
-    setConvertedFormat("");
-    setConvertedSize(0);
+    setUpload({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      size: file.size,
+      isDragging: false,
+    });
+
+    setConversion({
+      url: "",
+      format: "",
+      size: 0,
+      isConverting: false,
+    });
+
     toast.success("Image uploaded", {
       description: `${file.name} ready for conversion`,
     });
@@ -48,18 +64,18 @@ export default function Home() {
 
   const handleDragOver = useCallback((e: DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setIsDragging(true);
+    setUpload((prev) => ({ ...prev, isDragging: true }));
   }, []);
 
   const handleDragLeave = useCallback((e: DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setIsDragging(false);
+    setUpload((prev) => ({ ...prev, isDragging: false }));
   }, []);
 
   const handleDrop = useCallback(
     (e: DragEvent<HTMLButtonElement>) => {
       e.preventDefault();
-      setIsDragging(false);
+      setUpload((prev) => ({ ...prev, isDragging: false }));
       const file = e.dataTransfer.files[0];
       if (file) handleFileSelect(file);
     },
@@ -67,9 +83,9 @@ export default function Home() {
   );
 
   const convertImage = useCallback(async () => {
-    if (!selectedFile) return;
+    if (!upload.file) return;
 
-    setIsConverting(true);
+    setConversion((prev) => ({ ...prev, isConverting: true }));
     const loadingToast = toast.loading("Converting image...", {
       description: `Converting to ${settings.format.toUpperCase()}`,
     });
@@ -85,12 +101,12 @@ export default function Home() {
       if (settings.height) params.append("height", settings.height.toString());
 
       // Read file as ArrayBuffer and send as raw binary
-      const fileBuffer = await selectedFile.arrayBuffer();
+      const fileBuffer = await upload.file.arrayBuffer();
 
       const response = await fetch(`/api/convert?${params}`, {
         method: "POST",
         headers: {
-          "Content-Type": selectedFile.type,
+          "Content-Type": upload.file.type,
         },
         body: fileBuffer,
       });
@@ -101,10 +117,12 @@ export default function Home() {
       }
 
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      setConvertedUrl(url);
-      setConvertedFormat(settings.format);
-      setConvertedSize(blob.size);
+      setConversion({
+        url: URL.createObjectURL(blob),
+        format: settings.format,
+        size: blob.size,
+        isConverting: false,
+      });
 
       toast.success("Conversion complete!", {
         description: `Your image has been converted to ${settings.format.toUpperCase()}`,
@@ -119,25 +137,24 @@ export default function Home() {
             : "Make sure the imaginary server is running",
         id: loadingToast,
       });
-    } finally {
-      setIsConverting(false);
+      setConversion((prev) => ({ ...prev, isConverting: false }));
     }
-  }, [selectedFile, settings]);
+  }, [upload.file, settings]);
 
   const downloadImage = useCallback(() => {
-    if (!convertedUrl || !convertedFormat) return;
+    if (!conversion.url || !conversion.format) return;
 
     const a = document.createElement("a");
-    a.href = convertedUrl;
-    a.download = `converted.${convertedFormat}`;
+    a.href = conversion.url;
+    a.download = `converted.${conversion.format}`;
     document.body.appendChild(a);
     a.click();
     a.remove();
 
     toast.success("Download started", {
-      description: `Saving as converted.${convertedFormat}`,
+      description: `Saving as converted.${conversion.format}`,
     });
-  }, [convertedUrl, convertedFormat]);
+  }, [conversion.url, conversion.format]);
 
   const handleSettingsChange = useCallback(
     (newSettings: ConversionSettings) => {
@@ -156,15 +173,15 @@ export default function Home() {
 
   const savingsPercent = useMemo(
     () =>
-      originalSize && convertedSize
-        ? Math.round(((originalSize - convertedSize) / originalSize) * 100)
+      upload.size && conversion.size
+        ? Math.round(((upload.size - conversion.size) / upload.size) * 100)
         : 0,
-    [originalSize, convertedSize]
+    [upload.size, conversion.size]
   );
 
   const showPreview = useMemo(
-    () => Boolean(previewUrl || convertedUrl),
-    [previewUrl, convertedUrl]
+    () => Boolean(upload.previewUrl || conversion.url),
+    [upload.previewUrl, conversion.url]
   );
 
   return (
@@ -174,9 +191,9 @@ export default function Home() {
 
         <div className="grid lg:grid-cols-2 gap-6 mb-6">
           <UploadCard
-            selectedFile={selectedFile}
-            isDragging={isDragging}
-            originalSize={originalSize}
+            selectedFile={upload.file}
+            isDragging={upload.isDragging}
+            originalSize={upload.size}
             onFileSelect={handleFileSelect}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -186,8 +203,8 @@ export default function Home() {
 
           <SettingsCard
             settings={settings}
-            isConverting={isConverting}
-            hasSelectedFile={Boolean(selectedFile)}
+            isConverting={conversion.isConverting}
+            hasSelectedFile={Boolean(upload.file)}
             onSettingsChange={handleSettingsChange}
             onConvert={convertImage}
           />
@@ -195,12 +212,12 @@ export default function Home() {
 
         {showPreview && (
           <PreviewCard
-            previewUrl={previewUrl}
-            convertedUrl={convertedUrl}
-            originalSize={originalSize}
-            convertedSize={convertedSize}
+            previewUrl={upload.previewUrl}
+            convertedUrl={conversion.url}
+            originalSize={upload.size}
+            convertedSize={conversion.size}
             savingsPercent={savingsPercent}
-            outputFormat={convertedFormat}
+            outputFormat={conversion.format}
             formatBytes={formatBytes}
             onDownload={downloadImage}
           />
