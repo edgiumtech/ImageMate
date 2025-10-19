@@ -89,30 +89,41 @@ export const SettingsCard = memo(function SettingsCard({
                 <SelectContent>
                   <SelectItem value="webp">WebP</SelectItem>
                   <SelectItem value="jpeg">JPEG</SelectItem>
-                  <SelectItem value="png">PNG</SelectItem>
+                  <SelectItem value="png">PNG (Lossless)</SelectItem>
                   <SelectItem value="avif">AVIF</SelectItem>
                   <SelectItem value="tiff">TIFF</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div>
-              <label
-                htmlFor="quality-slider"
-                className="text-sm font-medium mb-2 block"
-              >
-                Quality: {settings.quality}%
-              </label>
-              <Slider
-                id="quality-slider"
-                value={[settings.quality]}
-                onValueChange={handleQualityChange}
-                min={1}
-                max={100}
-                step={1}
-                className="w-full"
-              />
-            </div>
+            {settings.format !== "png" && settings.format !== "tiff" && (
+              <div>
+                <label
+                  htmlFor="quality-slider"
+                  className="text-sm font-medium mb-2 block"
+                >
+                  Quality: {settings.quality}%
+                </label>
+                <Slider
+                  id="quality-slider"
+                  value={[settings.quality]}
+                  onValueChange={handleQualityChange}
+                  min={1}
+                  max={100}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+            )}
+
+            {(settings.format === "png" || settings.format === "tiff") && (
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">
+                  <strong>{settings.format.toUpperCase()}</strong> uses lossless
+                  compression. Quality settings don&apos;t apply.
+                </p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="resize" className="space-y-4 mt-4">
