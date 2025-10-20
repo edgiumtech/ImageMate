@@ -25,6 +25,7 @@ echo "Starting Next.js frontend on port ${FRONTEND_PORT}..."
 # Start Next.js app (standalone server)
 cd /app
 export PORT=${FRONTEND_PORT}
+export HOSTNAME="0.0.0.0"
 export BACKEND_URL="http://localhost:${BACKEND_PORT}"
 NODE_ENV=production node server.js &
 NEXTJS_PID=$!
