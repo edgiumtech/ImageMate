@@ -31,7 +31,7 @@ export const Footer = memo(function Footer() {
         </span>
       </div>
       <p className="text-sm text-muted-foreground">
-        Powered by{" "}
+        Built with{" "}
         <a
           href="https://github.com/h2non/imaginary"
           target="_blank"
@@ -39,8 +39,17 @@ export const Footer = memo(function Footer() {
           className="underline hover:text-foreground"
         >
           imaginary
-        </a>{" "}
-        • Open source & free to use
+        </a>
+        {" & "}
+        <a
+          href="https://libvips.github.io/libvips/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-foreground"
+        >
+          libvips
+        </a>
+        {" • Open source & free to use"}
       </p>
     </div>
   );

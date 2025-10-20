@@ -21,7 +21,7 @@ export const Header = memo(function Header() {
         </h1>
       </div>
       <p className="text-lg text-muted-foreground">
-        Fast, modern image conversion powered by libvips
+        Fast, private image conversion
       </p>
     </div>
   );
