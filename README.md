@@ -56,7 +56,7 @@ docker-compose down
 ## Development
 
 ```bash
-cd web
+cd client
 bun install
 bun dev
 ```

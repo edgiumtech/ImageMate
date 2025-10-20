@@ -26,11 +26,11 @@ services:
       retries: 3
       start_period: 10s
 
-  web:
+  client:
     build:
-      context: ./web
+      context: ./client
       dockerfile: Dockerfile
-    container_name: imaginary-web
+    container_name: imagemate-client
     ports:
       - "3000:3000"
     environment:
