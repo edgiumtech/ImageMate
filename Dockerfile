@@ -25,7 +25,7 @@ RUN apt-get update && \
 
 RUN git clone --depth 1 --branch v1.2.4 https://github.com/h2non/imaginary.git /tmp/imaginary && \
     cd /tmp/imaginary && \
-    go build -o /usr/local/bin/imaginary
+    go build -ldflags "-X main.Version=1.2.4" -o /usr/local/bin/imaginary
 
 # Final image with both services
 FROM node:20-bookworm-slim
