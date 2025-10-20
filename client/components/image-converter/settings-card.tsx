@@ -43,9 +43,11 @@ MemoizedTabsList.displayName = "MemoizedTabsList";
 
 const OutputFormatSelect = memo(function OutputFormatSelect({
   settings,
+  sourceFormat,
   onFormatChange,
 }: {
   settings: ConversionSettings;
+  sourceFormat: string;
   onFormatChange: (format: string) => void;
 }) {
   return (
@@ -58,15 +60,25 @@ const OutputFormatSelect = memo(function OutputFormatSelect({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="webp">WebP</SelectItem>
-          <SelectItem value="jpeg">JPEG</SelectItem>
-          <SelectItem value="png">PNG (Lossless)</SelectItem>
-          <SelectItem value="tiff">TIFF</SelectItem>
+          <SelectItem value="webp" disabled={sourceFormat === "webp"}>
+            WebP {sourceFormat === "webp" && "(Source)"}
+          </SelectItem>
+          <SelectItem value="jpeg" disabled={sourceFormat === "jpeg"}>
+            JPEG {sourceFormat === "jpeg" && "(Source)"}
+          </SelectItem>
+          <SelectItem value="png" disabled={sourceFormat === "png"}>
+            PNG (Lossless) {sourceFormat === "png" && "(Source)"}
+          </SelectItem>
+          <SelectItem value="tiff" disabled={sourceFormat === "tiff"}>
+            TIFF (Lossless) {sourceFormat === "tiff" && "(Source)"}
+          </SelectItem>
         </SelectContent>
       </Select>
     </div>
   );
 });
+
+OutputFormatSelect.displayName = "OutputFormatSelect";
 
 const ARROW_RIGHT_ICON = <ArrowRight className="ml-2" />;
 
@@ -74,6 +86,7 @@ interface SettingsCardProps {
   settings: ConversionSettings;
   isConverting: boolean;
   hasSelectedFile: boolean;
+  sourceFormat: string;
   onSettingsChange: (settings: ConversionSettings) => void;
   onConvert: () => void;
 }
@@ -82,6 +95,7 @@ export const SettingsCard = memo(function SettingsCard({
   settings,
   isConverting,
   hasSelectedFile,
+  sourceFormat,
   onSettingsChange,
   onConvert,
 }: SettingsCardProps) {
@@ -128,6 +142,7 @@ export const SettingsCard = memo(function SettingsCard({
           <TabsContent value="format" className="space-y-4 mt-4">
             <OutputFormatSelect
               settings={settings}
+              sourceFormat={sourceFormat}
               onFormatChange={handleFormatChange}
             />
 

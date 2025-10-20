@@ -19,6 +19,7 @@ export default function Home() {
     previewUrl: "",
     size: 0,
     isDragging: false,
+    sourceFormat: "" as string,
   });
 
   // Conversion state
@@ -43,11 +44,15 @@ export default function Home() {
       return;
     }
 
+    // Detect source format from MIME type
+    const sourceFormat = file.type.split("/")[1].toLowerCase();
+
     setUpload({
       file,
       previewUrl: URL.createObjectURL(file),
       size: file.size,
       isDragging: false,
+      sourceFormat,
     });
 
     setConversion({
@@ -55,6 +60,16 @@ export default function Home() {
       format: "",
       size: 0,
       isConverting: false,
+    });
+
+    // Auto-switch format if current selection matches source format
+    setSettings((prev) => {
+      if (prev.format === sourceFormat) {
+        // Switch to a different format (webp is a good default)
+        const newFormat = sourceFormat === "webp" ? "jpeg" : "webp";
+        return { ...prev, format: newFormat };
+      }
+      return prev;
     });
 
     toast.success("Image uploaded", {
@@ -205,6 +220,7 @@ export default function Home() {
             settings={settings}
             isConverting={conversion.isConverting}
             hasSelectedFile={Boolean(upload.file)}
+            sourceFormat={upload.sourceFormat}
             onSettingsChange={handleSettingsChange}
             onConvert={convertImage}
           />
