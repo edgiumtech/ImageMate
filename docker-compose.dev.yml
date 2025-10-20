@@ -1,0 +1,14 @@
+services:
+  imagemate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: imagemate-dev
+    ports:
+      - "3000:3000"
+      - "9000:9000"
+    environment:
+      - FRONTEND_PORT=3000
+      - BACKEND_PORT=9000
+      - NODE_ENV=production
+    restart: unless-stopped
