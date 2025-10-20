@@ -1,5 +1,7 @@
 import { memo } from "react";
-import { Sparkles, Github } from "lucide-react";
+import { Github } from "lucide-react";
+import Image from "next/image";
+import logo from "@/public/logo.png";
 
 export const Header = memo(function Header() {
   return (
@@ -15,7 +17,7 @@ export const Header = memo(function Header() {
       </a>
 
       <div className="flex items-center justify-center gap-3 mb-4">
-        <Sparkles className="w-8 h-8 text-primary" />
+        <Image src={logo} alt="ImageMate" width={50} height={50} />
         <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent pb-1">
           ImageMate
         </h1>
