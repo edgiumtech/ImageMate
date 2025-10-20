@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:9000";
+
 export async function GET() {
   try {
-    const response = await fetch("http://localhost:9000/", {
+    const response = await fetch(`${BACKEND_URL}/`, {
       cache: "no-store",
     });
 

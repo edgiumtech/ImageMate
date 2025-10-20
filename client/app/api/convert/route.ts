@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:9000";
+
 export async function POST(request: NextRequest) {
   try {
     // Get query parameters from the request URL
@@ -12,7 +14,7 @@ export async function POST(request: NextRequest) {
     const contentType = request.headers.get("content-type") || "image/jpeg";
 
     // Forward to imaginary API
-    const imaginaryUrl = new URL("http://localhost:9000/convert");
+    const imaginaryUrl = new URL(`${BACKEND_URL}/convert`);
     searchParams.forEach((value, key) => {
       imaginaryUrl.searchParams.append(key, value);
     });
@@ -56,4 +58,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

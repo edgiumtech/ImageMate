@@ -1,7 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "Starting Imaginary backend..."
+# Default ports (can be overridden via environment variables)
+FRONTEND_PORT=${FRONTEND_PORT:-3000}
+BACKEND_PORT=${BACKEND_PORT:-9000}
+
+echo "Starting Imaginary backend on port ${BACKEND_PORT}..."
 # Start imaginary in the background (unset PORT to avoid conflicts)
 (unset PORT && /usr/local/bin/imaginary \
   -concurrency 10 \
@@ -9,7 +13,7 @@ echo "Starting Imaginary backend..."
   -http-cache-ttl 31556926 \
   -cpus 2 \
   -cors \
-  -p 9000) &
+  -p ${BACKEND_PORT}) &
 
 IMAGINARY_PID=$!
 
@@ -17,16 +21,17 @@ IMAGINARY_PID=$!
 echo "Waiting for Imaginary to be ready..."
 sleep 3
 
-echo "Starting Next.js frontend..."
+echo "Starting Next.js frontend on port ${FRONTEND_PORT}..."
 # Start Next.js app (standalone server)
 cd /app
-export PORT=3000
+export PORT=${FRONTEND_PORT}
+export BACKEND_URL="http://localhost:${BACKEND_PORT}"
 NODE_ENV=production node server.js &
 NEXTJS_PID=$!
 
 echo "✅ Both services are running!"
-echo "Frontend: http://localhost:3000"
-echo "Backend: http://localhost:9000"
+echo "Frontend: http://localhost:${FRONTEND_PORT}"
+echo "Backend: http://localhost:${BACKEND_PORT}"
 
 # Function to handle shutdown
 shutdown() {

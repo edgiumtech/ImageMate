@@ -53,10 +53,10 @@ RUN chmod +x /start.sh
 # Expose both ports
 EXPOSE 3000 9000
 
-# Set environment variables
+# Set environment variables (can be overridden at runtime)
 ENV NODE_ENV=production
-ENV NEXT_PUBLIC_API_URL=http://localhost:9000
-ENV PORT=3000
+ENV FRONTEND_PORT=3000
+ENV BACKEND_PORT=9000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=20s \
