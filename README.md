@@ -97,29 +97,37 @@ docker-compose down
 
 ## Development
 
-### Local Development (without Docker)
+Want to contribute? Check out our [Contributing Guide](CONTRIBUTING.md) for detailed setup instructions.
+
+### Quick Start for Contributors
 
 ```bash
+# 1. Start the backend
+docker-compose -f docker-compose.backend.yml up -d
+
+# 2. Start the frontend
 cd client
 bun install
 bun dev
 ```
 
-Dev server: http://localhost:3000
+Frontend: http://localhost:3000  
+Backend API: http://localhost:9000
 
 ### Build from Source
+
+If you want to build the image yourself:
 
 ```bash
 # Clone the repository
 git clone https://github.com/edgiumtech/ImageMate
 cd imaginary
 
-# Build and run locally
-docker-compose -f docker-compose.dev.yml up --build
-
-# Or build the image directly
+# Build the image
 docker build -t imagemate:local .
-docker run --name imagemate -p 3000:3000 -p 9000:9000 imagemate:local
+
+# Run it
+docker run -d --name imagemate -p 3000:3000 -p 9000:9000 imagemate:local
 ```
 
 ## Tech Stack
@@ -189,6 +197,8 @@ Contributions are welcome! Whether it's:
 - 💡 Feature requests
 - 📝 Documentation improvements
 - 🔧 Code contributions
+
+Please read our [Contributing Guide](CONTRIBUTING.md) for development setup and guidelines.
 
 Feel free to open an issue or submit a pull request.
 

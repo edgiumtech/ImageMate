@@ -1,0 +1,20 @@
+services:
+  imaginary:
+    image: h2non/imaginary:1.2.4
+    container_name: imaginary-backend
+    ports:
+      - "9000:9000"
+    command: >
+      -concurrency 10
+      -enable-url-source
+      -http-cache-ttl 31556926
+      -cpus 2
+      -cors
+      -p 9000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

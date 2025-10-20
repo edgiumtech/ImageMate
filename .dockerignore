@@ -24,7 +24,7 @@ client/yarn-error.log*
 
 # Docker
 docker-compose.yml
-docker-compose.dev.yml
+docker-compose.backend.yml
 *.dockerignore
 client/Dockerfile
 
