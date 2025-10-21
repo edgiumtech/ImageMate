@@ -15,14 +15,12 @@ So we built one.
 
 ## Features
 
+- 🔒 **Private** - Everything runs locally, your images never leave your machine
 - 🎨 **Modern UI** - Built with Next.js 15, TypeScript, and shadcn/ui
 - ⚡ **Fast Conversion** - Powered by libvips through imaginary
-- 🔒 **Private** - Everything runs locally, your images never leave your machine
-- 🖼️ **Side-by-side Preview** - Compare original and converted images
 - 📊 **Size Comparison** - See compression savings instantly
 - 🔄 **Multiple Formats** - WebP, JPEG, PNG, AVIF, TIFF
 - 🎛️ **Full Control** - Quality adjustment, resize, and more
-- 🌓 **Dark Mode** - Automatic theme support
 
 ## Quick Start
 
