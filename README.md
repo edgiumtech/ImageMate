@@ -140,11 +140,14 @@ docker run -d --name imagemate -p 3000:3000 -p 9000:9000 imagemate:local
 
 ### Environment Variables
 
-| Variable        | Default      | Description                      |
-| --------------- | ------------ | -------------------------------- |
-| `FRONTEND_PORT` | `3000`       | Port for Next.js frontend server |
-| `BACKEND_PORT`  | `9000`       | Port for Imaginary backend API   |
-| `NODE_ENV`      | `production` | Node.js environment              |
+| Variable                             | Default      | Description                          | Required |
+| ------------------------------------ | ------------ | ------------------------------------ | -------- |
+| `FRONTEND_PORT`                      | `3000`       | Port for Next.js frontend server     | No       |
+| `BACKEND_PORT`                       | `9000`       | Port for Imaginary backend API       | No       |
+| `NODE_ENV`                           | `production` | Node.js environment                  | No       |
+| `NEXT_PUBLIC_DATADOG_APPLICATION_ID` | -            | Datadog Application ID for analytics | No       |
+| `NEXT_PUBLIC_DATADOG_CLIENT_TOKEN`   | -            | Datadog Client Token                 | No       |
+| `NEXT_PUBLIC_DATADOG_SITE`           | -            | Datadog Site (e.g., `datadoghq.com`) | No       |
 
 ### Example Configurations
 
@@ -175,6 +178,21 @@ services:
       - "3334:3334"
     restart: unless-stopped
 ```
+
+**With Datadog Analytics (Optional):**
+
+```bash
+docker run -d \
+  --name imagemate \
+  -e NEXT_PUBLIC_DATADOG_APPLICATION_ID=your-app-id \
+  -e NEXT_PUBLIC_DATADOG_CLIENT_TOKEN=your-client-token \
+  -e NEXT_PUBLIC_DATADOG_SITE=datadoghq.com \
+  -p 3000:3000 \
+  -p 9000:9000 \
+  edgium/imagemate:latest
+```
+
+> **Note:** Datadog RUM is optional. If you don't provide these credentials, the app works normally without analytics.
 
 ## Usage
 

@@ -58,6 +58,12 @@ ENV NODE_ENV=production
 ENV FRONTEND_PORT=3000
 ENV BACKEND_PORT=9000
 
+# Datadog RUM (optional - only needed if you want analytics)
+# Users should pass these at runtime if they want tracking
+ENV NEXT_PUBLIC_DATADOG_APPLICATION_ID=""
+ENV NEXT_PUBLIC_DATADOG_CLIENT_TOKEN=""
+ENV NEXT_PUBLIC_DATADOG_SITE=""
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=20s \
   CMD curl -f http://localhost:3000 && curl -f http://localhost:9000/health
