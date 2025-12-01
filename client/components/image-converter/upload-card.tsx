@@ -83,7 +83,7 @@ export const UploadCard = memo(function UploadCard({
             {selectedFile ? selectedFile.name : "Click or drag image here"}
           </p>
           <p className="text-xs text-muted-foreground">
-            Supports PNG, JPEG, WebP and TIFF
+            Supports PNG, JPEG, WebP, HEIC and TIFF
           </p>
         </button>
 

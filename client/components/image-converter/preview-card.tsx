@@ -17,6 +17,7 @@ interface PreviewCardProps {
   convertedSize: number;
   savingsPercent: number;
   outputFormat: string;
+  sourceFormat: string;
   formatBytes: (bytes: number) => string;
   onDownload: () => void;
 }
@@ -28,9 +29,49 @@ export const PreviewCard = memo(function PreviewCard({
   convertedSize,
   savingsPercent,
   outputFormat,
+  sourceFormat,
   formatBytes,
   onDownload,
 }: PreviewCardProps) {
+  const isUnsupportedFormat = (format: string) => {
+    return format === "tiff" || format === "heic" || format === "heif";
+  };
+
+  const renderOriginalPreview = () => {
+    if (!previewUrl) {
+      return (
+        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+          <ImageIcon className="w-12 h-12" />
+        </div>
+      );
+    }
+
+    if (isUnsupportedFormat(sourceFormat)) {
+      return (
+        <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-3 p-6">
+          <FileCheck className="w-16 h-16" />
+          <div className="text-center">
+            <p className="text-sm font-medium">
+              {sourceFormat.toUpperCase()} File
+            </p>
+            <p className="text-xs mt-1">Preview not available in browser</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <Image
+        src={previewUrl}
+        alt="Original"
+        fill
+        className="object-contain"
+        sizes="100vw"
+        priority
+      />
+    );
+  };
+
   const renderConvertedPreview = () => {
     if (!convertedUrl) {
       return (
@@ -40,12 +81,14 @@ export const PreviewCard = memo(function PreviewCard({
       );
     }
 
-    if (outputFormat === "tiff") {
+    if (isUnsupportedFormat(outputFormat)) {
       return (
         <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-3 p-6">
           <FileCheck className="w-16 h-16" />
           <div className="text-center">
-            <p className="text-sm font-medium">TIFF Ready</p>
+            <p className="text-sm font-medium">
+              {outputFormat.toUpperCase()} Ready
+            </p>
             <p className="text-xs mt-1">Preview not available in browser</p>
           </div>
         </div>
@@ -75,16 +118,7 @@ export const PreviewCard = memo(function PreviewCard({
           <div>
             <p className="text-sm font-medium mb-2">Original</p>
             <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-              {previewUrl && (
-                <Image
-                  src={previewUrl}
-                  alt="Original"
-                  fill
-                  className="object-contain"
-                  sizes="100vw"
-                  priority
-                />
-              )}
+              {renderOriginalPreview()}
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               Size: {formatBytes(originalSize)}

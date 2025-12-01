@@ -103,9 +103,10 @@ export async function POST(req: Request) {
         "access-control-allow-origin": "*",
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     diag.step = "catch";
-    diag.err = `${err?.name || "Error"}: ${err?.message || err}`;
+    const error = err as Error;
+    diag.err = `${error?.name || "Error"}: ${error?.message || String(err)}`;
     return debugResponse(502, "Proxy error", diag);
   }
 }
@@ -118,7 +119,11 @@ async function safeReadText(r: Response) {
   }
 }
 
-function debugResponse(status: number, message: string, details: any) {
+function debugResponse(
+  status: number,
+  message: string,
+  details: Record<string, unknown>
+) {
   if (IS_PROD) return new Response(message, { status });
   return new Response(JSON.stringify({ message, ...details }, null, 2), {
     status,
