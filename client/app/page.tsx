@@ -44,8 +44,16 @@ export default function Home() {
       return;
     }
 
-    // Detect source format from MIME type
-    const sourceFormat = file.type.split("/")[1].toLowerCase();
+    // Detect source format from MIME type or file extension
+    let sourceFormat = file.type.split("/")[1]?.toLowerCase() || "";
+    
+    // Handle HEIC/HEIF files (may have different MIME types or no MIME type)
+    if (!sourceFormat || sourceFormat.includes("heic") || sourceFormat.includes("heif")) {
+      const fileName = file.name.toLowerCase();
+      if (fileName.endsWith(".heic") || fileName.endsWith(".heif")) {
+        sourceFormat = "heic";
+      }
+    }
 
     setUpload({
       file,
@@ -234,6 +242,7 @@ export default function Home() {
             convertedSize={conversion.size}
             savingsPercent={savingsPercent}
             outputFormat={conversion.format}
+            sourceFormat={upload.sourceFormat}
             formatBytes={formatBytes}
             onDownload={downloadImage}
           />
