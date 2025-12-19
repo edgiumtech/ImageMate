@@ -46,4 +46,3 @@ trap shutdown SIGTERM SIGINT
 
 # Wait for both processes
 wait $IMAGINARY_PID $NEXTJS_PID
-
