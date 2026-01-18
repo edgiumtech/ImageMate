@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import {
   Header,
   Footer,
   UploadCard,
   SettingsCard,
-  PreviewCard,
   type ConversionSettings,
 } from "@/components/image-converter";
 import type { DragEvent } from "react";
@@ -165,19 +164,35 @@ export default function Home() {
   }, [upload.file, settings]);
 
   const downloadImage = useCallback(() => {
-    if (!conversion.url || !conversion.format) return;
+    if (!conversion.url || !conversion.format || !upload.file) return;
 
     const a = document.createElement("a");
     a.href = conversion.url;
-    a.download = `converted.${conversion.format}`;
+    
+    // Use original filename with new extension
+    const originalName = upload.file.name.replace(/\.[^/.]+$/, "");
+    a.download = `${originalName}.${conversion.format}`;
+    
     document.body.appendChild(a);
     a.click();
     a.remove();
 
     toast.success("Download started", {
-      description: `Saving as converted.${conversion.format}`,
+      description: `Saving as ${originalName}.${conversion.format}`,
     });
-  }, [conversion.url, conversion.format]);
+  }, [conversion.url, conversion.format, upload.file]);
+
+  const handleConvertAgain = useCallback(() => {
+    setConversion({
+      url: "",
+      format: "",
+      size: 0,
+      isConverting: false,
+    });
+    toast.info("Ready to convert again", {
+      description: "Adjust settings and click Convert",
+    });
+  }, []);
 
   const handleSettingsChange = useCallback(
     (newSettings: ConversionSettings) => {
@@ -202,10 +217,67 @@ export default function Home() {
     [upload.size, conversion.size]
   );
 
-  const showPreview = useMemo(
-    () => Boolean(upload.previewUrl || conversion.url),
-    [upload.previewUrl, conversion.url]
+  const conversionComplete = useMemo(
+    () => Boolean(conversion.url && conversion.format && !conversion.isConverting),
+    [conversion.url, conversion.format, conversion.isConverting]
   );
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (globalThis.window === undefined) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Enter to convert (when file selected and not converting)
+      if (
+        e.key === "Enter" &&
+        upload.file &&
+        !conversion.isConverting &&
+        !conversionComplete &&
+        !e.shiftKey &&
+        !e.ctrlKey &&
+        !e.metaKey
+      ) {
+        const target = e.target as HTMLElement;
+        // Don't trigger if user is typing in an input
+        if (
+          target.tagName !== "INPUT" &&
+          target.tagName !== "TEXTAREA" &&
+          !target.isContentEditable
+        ) {
+          e.preventDefault();
+          convertImage();
+        }
+      }
+
+      // Cmd/Ctrl + D to download (when conversion complete)
+      if (
+        (e.metaKey || e.ctrlKey) &&
+        e.key === "d" &&
+        conversionComplete &&
+        !e.shiftKey &&
+        !e.altKey
+      ) {
+        const target = e.target as HTMLElement;
+        if (
+          target.tagName !== "INPUT" &&
+          target.tagName !== "TEXTAREA" &&
+          !target.isContentEditable
+        ) {
+          e.preventDefault();
+          downloadImage();
+        }
+      }
+    };
+
+    globalThis.window.addEventListener("keydown", handleKeyDown);
+    return () => globalThis.window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    upload.file,
+    conversion.isConverting,
+    conversionComplete,
+    convertImage,
+    downloadImage,
+  ]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4 md:p-8">
@@ -215,6 +287,8 @@ export default function Home() {
         <div className="grid lg:grid-cols-2 gap-6 mb-6">
           <UploadCard
             selectedFile={upload.file}
+            previewUrl={upload.previewUrl}
+            sourceFormat={upload.sourceFormat}
             isDragging={upload.isDragging}
             originalSize={upload.size}
             onFileSelect={handleFileSelect}
@@ -229,24 +303,18 @@ export default function Home() {
             isConverting={conversion.isConverting}
             hasSelectedFile={Boolean(upload.file)}
             sourceFormat={upload.sourceFormat}
-            onSettingsChange={handleSettingsChange}
-            onConvert={convertImage}
-          />
-        </div>
-
-        {showPreview && (
-          <PreviewCard
-            previewUrl={upload.previewUrl}
-            convertedUrl={conversion.url}
+            conversionComplete={conversionComplete}
             originalSize={upload.size}
             convertedSize={conversion.size}
             savingsPercent={savingsPercent}
             outputFormat={conversion.format}
-            sourceFormat={upload.sourceFormat}
             formatBytes={formatBytes}
+            onSettingsChange={handleSettingsChange}
+            onConvert={convertImage}
             onDownload={downloadImage}
+            onConvertAgain={handleConvertAgain}
           />
-        )}
+        </div>
 
         <Footer />
       </div>

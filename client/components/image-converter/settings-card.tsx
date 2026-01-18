@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Download, RotateCcw, CheckCircle2 } from "lucide-react";
 import type { ConversionSettings } from "./types";
 
 const SettingCardHeader = memo(function SettingCardHeader() {
@@ -87,8 +87,16 @@ interface SettingsCardProps {
   isConverting: boolean;
   hasSelectedFile: boolean;
   sourceFormat: string;
+  conversionComplete: boolean;
+  originalSize: number;
+  convertedSize: number;
+  savingsPercent: number;
+  outputFormat: string;
+  formatBytes: (bytes: number) => string;
   onSettingsChange: (settings: ConversionSettings) => void;
   onConvert: () => void;
+  onDownload: () => void;
+  onConvertAgain: () => void;
 }
 
 export const SettingsCard = memo(function SettingsCard({
@@ -96,8 +104,16 @@ export const SettingsCard = memo(function SettingsCard({
   isConverting,
   hasSelectedFile,
   sourceFormat,
+  conversionComplete,
+  originalSize,
+  convertedSize,
+  savingsPercent,
+  outputFormat,
+  formatBytes,
   onSettingsChange,
   onConvert,
+  onDownload,
+  onConvertAgain,
 }: SettingsCardProps) {
   const handleFormatChange = useCallback(
     (format: string) => {
@@ -137,91 +153,142 @@ export const SettingsCard = memo(function SettingsCard({
     <Card>
       <SettingCardHeader />
       <CardContent className="space-y-6">
-        <Tabs defaultValue="format" className="w-full">
-          <MemoizedTabsList />
-          <TabsContent value="format" className="space-y-4 mt-4">
-            <OutputFormatSelect
-              settings={settings}
-              sourceFormat={sourceFormat}
-              onFormatChange={handleFormatChange}
-            />
+        {conversionComplete ? (
+          <>
+            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+              <CheckCircle2 className="w-5 h-5" />
+              <p className="font-medium">Conversion Complete!</p>
+            </div>
+            
+            <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Size:</span>
+                <span className="font-medium">
+                  {formatBytes(originalSize)} → {formatBytes(convertedSize)}
+                </span>
+              </div>
+              {savingsPercent > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Reduction:</span>
+                  <span className="font-medium text-green-600 dark:text-green-400">
+                    ↓ {savingsPercent}% smaller
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Format:</span>
+                <span className="font-medium uppercase">{outputFormat}</span>
+              </div>
+            </div>
 
-            {settings.format !== "png" && settings.format !== "tiff" && (
-              <div>
-                <label
-                  htmlFor="quality-slider"
-                  className="text-sm font-medium mb-2 block"
-                >
-                  Quality: {settings.quality}%
-                </label>
-                <Slider
-                  id="quality-slider"
-                  value={[settings.quality]}
-                  onValueChange={handleQualityChange}
-                  min={1}
-                  max={100}
-                  step={1}
-                  className="w-full"
+            <Button
+              onClick={onDownload}
+              className="w-full"
+              size="lg"
+            >
+              <Download className="mr-2" />
+              Download Converted Image
+            </Button>
+
+            <Button
+              onClick={onConvertAgain}
+              variant="outline"
+              className="w-full"
+              size="lg"
+            >
+              <RotateCcw className="mr-2" />
+              Convert Again
+            </Button>
+          </>
+        ) : (
+          <>
+            <Tabs defaultValue="format" className="w-full">
+              <MemoizedTabsList />
+              <TabsContent value="format" className="space-y-4 mt-4">
+                <OutputFormatSelect
+                  settings={settings}
+                  sourceFormat={sourceFormat}
+                  onFormatChange={handleFormatChange}
                 />
-              </div>
-            )}
 
-            {(settings.format === "png" || settings.format === "tiff") && (
-              <div className="p-3 bg-muted/50 rounded-lg">
-                <p className="text-xs text-muted-foreground">
-                  <strong>{settings.format.toUpperCase()}</strong> uses lossless
-                  compression. Quality settings don&apos;t apply.
-                </p>
-              </div>
-            )}
-          </TabsContent>
+                {settings.format !== "png" && settings.format !== "tiff" && (
+                  <div>
+                    <label
+                      htmlFor="quality-slider"
+                      className="text-sm font-medium mb-2 block"
+                    >
+                      Quality: {settings.quality}%
+                    </label>
+                    <Slider
+                      id="quality-slider"
+                      value={[settings.quality]}
+                      onValueChange={handleQualityChange}
+                      min={1}
+                      max={100}
+                      step={1}
+                      className="w-full"
+                    />
+                  </div>
+                )}
 
-          <TabsContent value="resize" className="space-y-4 mt-4">
-            <div>
-              <label
-                htmlFor="width-input"
-                className="text-sm font-medium mb-2 block"
-              >
-                Width (px)
-              </label>
-              <input
-                id="width-input"
-                type="number"
-                placeholder="Original width"
-                value={settings.width || ""}
-                onChange={handleWidthChange}
-                className="w-full h-9 px-3 rounded-md border bg-background text-sm"
-              />
-            </div>
+                {(settings.format === "png" || settings.format === "tiff") && (
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>{settings.format.toUpperCase()}</strong> uses lossless
+                      compression. Quality settings don&apos;t apply.
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
 
-            <div>
-              <label
-                htmlFor="height-input"
-                className="text-sm font-medium mb-2 block"
-              >
-                Height (px)
-              </label>
-              <input
-                id="height-input"
-                type="number"
-                placeholder="Original height"
-                value={settings.height || ""}
-                onChange={handleHeightChange}
-                className="w-full h-9 px-3 rounded-md border bg-background text-sm"
-              />
-            </div>
-          </TabsContent>
-        </Tabs>
+              <TabsContent value="resize" className="space-y-4 mt-4">
+                <div>
+                  <label
+                    htmlFor="width-input"
+                    className="text-sm font-medium mb-2 block"
+                  >
+                    Width (px)
+                  </label>
+                  <input
+                    id="width-input"
+                    type="number"
+                    placeholder="Original width"
+                    value={settings.width || ""}
+                    onChange={handleWidthChange}
+                    className="w-full h-9 px-3 rounded-md border bg-background text-sm"
+                  />
+                </div>
 
-        <Button
-          onClick={onConvert}
-          disabled={!hasSelectedFile || isConverting}
-          className="w-full"
-          size="lg"
-        >
-          {isConverting ? "Converting..." : "Convert Image"}
-          {ARROW_RIGHT_ICON}
-        </Button>
+                <div>
+                  <label
+                    htmlFor="height-input"
+                    className="text-sm font-medium mb-2 block"
+                  >
+                    Height (px)
+                  </label>
+                  <input
+                    id="height-input"
+                    type="number"
+                    placeholder="Original height"
+                    value={settings.height || ""}
+                    onChange={handleHeightChange}
+                    className="w-full h-9 px-3 rounded-md border bg-background text-sm"
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <Button
+              onClick={onConvert}
+              disabled={!hasSelectedFile || isConverting}
+              className="w-full"
+              size="lg"
+            >
+              {isConverting ? "Converting..." : "Convert Image"}
+              {ARROW_RIGHT_ICON}
+            </Button>
+          </>
+        )}
       </CardContent>
     </Card>
   );
