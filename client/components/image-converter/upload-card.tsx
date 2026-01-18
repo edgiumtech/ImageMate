@@ -121,7 +121,48 @@ export const UploadCard = memo(function UploadCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {!selectedFile ? (
+        {selectedFile ? (
+          <>
+            <button
+              type="button"
+              className="cursor-pointer w-full border-0 bg-transparent p-0"
+              onClick={handleClick}
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              onDrop={onDrop}
+              onKeyDown={handleKeyDown}
+            >
+              {renderPreview()}
+            </button>
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+              <ImageIcon className="w-5 h-5 text-primary flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {selectedFile.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatBytes(originalSize)}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveFile();
+                }}
+                className="flex-shrink-0"
+                aria-label="Remove image"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-center text-muted-foreground">
+              Click preview or drag new image to replace
+            </p>
+          </>
+        ) : (
           <button
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
@@ -153,53 +194,6 @@ export const UploadCard = memo(function UploadCard({
               Supports PNG, JPEG, WebP, HEIC and TIFF
             </p>
           </button>
-        ) : (
-          <>
-            <div
-              className="cursor-pointer"
-              onClick={handleClick}
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
-              onDrop={onDrop}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleClick();
-                }
-              }}
-            >
-              {renderPreview()}
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-              <ImageIcon className="w-5 h-5 text-primary flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {selectedFile.name}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {formatBytes(originalSize)}
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemoveFile();
-                }}
-                className="flex-shrink-0"
-                aria-label="Remove image"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            <p className="text-xs text-center text-muted-foreground">
-              Click preview or drag new image to replace
-            </p>
-          </>
         )}
       </CardContent>
     </Card>
