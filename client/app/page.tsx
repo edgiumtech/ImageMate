@@ -170,15 +170,21 @@ export default function Home() {
     a.href = conversion.url;
     
     // Use original filename with new extension
-    const originalName = upload.file.name.replace(/\.[^/.]+$/, "");
-    a.download = `${originalName}.${conversion.format}`;
+    const originalFileName = upload.file.name;
+    const lastDotIndex = originalFileName.lastIndexOf(".");
+    const baseName = lastDotIndex > 0 
+      ? originalFileName.substring(0, lastDotIndex)
+      : originalFileName;
+    
+    const downloadFileName = `${baseName}.${conversion.format}`;
+    a.download = downloadFileName;
     
     document.body.appendChild(a);
     a.click();
     a.remove();
 
     toast.success("Download started", {
-      description: `Saving as ${originalName}.${conversion.format}`,
+      description: `Saving as ${downloadFileName}`,
     });
   }, [conversion.url, conversion.format, upload.file]);
 
