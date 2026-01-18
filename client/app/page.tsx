@@ -43,6 +43,20 @@ export default function Home() {
       return;
     }
 
+    // Clean up previous object URLs to prevent memory leaks
+    setUpload((prev) => {
+      if (prev.previewUrl) {
+        URL.revokeObjectURL(prev.previewUrl);
+      }
+      return prev;
+    });
+    setConversion((prev) => {
+      if (prev.url) {
+        URL.revokeObjectURL(prev.url);
+      }
+      return prev;
+    });
+
     // Detect source format from MIME type or file extension
     let sourceFormat = file.type.split("/")[1]?.toLowerCase() || "";
     
@@ -200,6 +214,35 @@ export default function Home() {
     });
   }, []);
 
+  const handleRemoveFile = useCallback(() => {
+    // Clean up object URL to prevent memory leaks
+    if (upload.previewUrl) {
+      URL.revokeObjectURL(upload.previewUrl);
+    }
+    if (conversion.url) {
+      URL.revokeObjectURL(conversion.url);
+    }
+
+    setUpload({
+      file: null,
+      previewUrl: "",
+      size: 0,
+      isDragging: false,
+      sourceFormat: "",
+    });
+
+    setConversion({
+      url: "",
+      format: "",
+      size: 0,
+      isConverting: false,
+    });
+
+    toast.info("File removed", {
+      description: "Select a new image to convert",
+    });
+  }, [upload.previewUrl, conversion.url]);
+
   const handleSettingsChange = useCallback(
     (newSettings: ConversionSettings) => {
       setSettings(newSettings);
@@ -298,6 +341,7 @@ export default function Home() {
             isDragging={upload.isDragging}
             originalSize={upload.size}
             onFileSelect={handleFileSelect}
+            onRemoveFile={handleRemoveFile}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
